@@ -2,20 +2,45 @@
 version: 2
 
 models:
-  - name: my_first_dbt_model
-    description: "A starter dbt model"
+  - name: customer_analytics
+    description: >
+      One row per customer with order-derived metrics used for customer health and segmentation.
+      Combines customer profile data from `app.customers` with aggregated order history from `app.orders`
+      (customers with no orders are retained with `total_orders = 0` and `lifetime_value = 0`).
+      Segmentation is derived from `total_orders` into: inactive (0), occasional (1–4), regular (5–14), vip (15+).
     columns:
-      - name: id
-        description: "The primary key for this table"
-        data_tests:
-          - unique
+      - name: customer_id
+        description: >
+          Primary key for the customer. Sourced from `app.customers.customer_id` and used to join customer
+          profile attributes to orders and downstream aggregates. Should be stable and unique per customer.
+        tests:
           - not_null
-
-  - name: my_second_dbt_model
-    description: "A starter dbt model"
-    columns:
-      - name: id
-        description: "The primary key for this table"
-        data_tests:
           - unique
+      - name: email
+        description: >
+          Customer email address from `app.customers.email`. Intended for operational contact and customer lookups;
+          may not be unique (e.g., shared inboxes) and may be null only if the upstream source allows it.
+        tests:
+          - not_null
+      - name: lifetime_value
+        description: >
+          Total lifetime spend for the customer, calculated as the sum of `app.orders.total_amount` across all orders.
+          Customers with no orders are set to 0 via `coalesce`. Units/currency follow the upstream `total_amount` field.
+        tests:
+          - not_null
+      - name: customer_segment
+        description: >
+          Order-frequency segment derived from `total_orders`:
+          inactive (0 orders), occasional (1–4), regular (5–14), vip (15+).
+          Use this for high-level lifecycle reporting; for more nuanced behavior, consider recency (e.g., last order date)
+          and monetary value (e.g., lifetime_value) alongside this segment.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['inactive', 'occasional', 'regular', 'vip']
+      - name: total_orders
+        description: >
+          Count of distinct orders placed by the customer (`count(distinct order_id)` from `app.orders`).
+          Customers with no orders are included and will have `total_orders = 0`.
+        tests:
           - not_null

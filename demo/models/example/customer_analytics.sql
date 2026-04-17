@@ -7,7 +7,7 @@ with customer_orders as (
     c.country,
     c.registration_date,
     count(distinct o.order_id) as total_orders,
-    sum(o.total_amount) as lifetime_value,
+    coalesce(sum(o.total_amount), 0) as lifetime_value,
     min(o.order_date) as first_order_date,
     max(o.order_date) as last_order_date,
     avg(o.total_amount) as avg_order_value
