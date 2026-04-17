@@ -113,3 +113,12 @@ Then provide:
 
 Keep responses concise but include key metrics (execution times, cache hit %, row counts).
 
+----------------------
+
+Remove container
+
+Using the Docker MCP:
+Stop the pg-local container
+Remove the pg-local container
+
+
