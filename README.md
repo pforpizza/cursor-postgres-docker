@@ -53,8 +53,9 @@ Restart Cursor for these changes to take effect
 
 Create PostgreSQL container and database by asking cursor AI
 
-Using the Docker MCP, create a PostgreSQL 16 container named
-pg-local on port 5432 with user/password 'app' and database 'demo'
+Using the Docker MCP, create a PostgreSQL 16 container named pg-local on port 5432 with user/password 'app' and database 'demo'
+
+or (docker run --name pg-local -e POSTGRES_USER=app -e POSTGRES_PASSWORD=app -e POSTGRES_DB=demo -p 5432:5432 -d postgres:16) in terminal
 
 postgres:16 is the version of PostgreSQL
 
